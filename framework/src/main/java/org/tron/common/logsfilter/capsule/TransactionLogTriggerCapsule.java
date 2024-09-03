@@ -55,14 +55,14 @@ public class TransactionLogTriggerCapsule extends TriggerCapsule {
     transactionLogTrigger = new TransactionLogTrigger();
 
     String blockHash = "";
-    if (Objects.nonNull(blockCapsule)) {
-      blockHash = blockCapsule.getBlockId().toString();
-      transactionLogTrigger.setBlockHash(blockHash);
-    }
+//    if (Objects.nonNull(blockCapsule)) {
+//      blockHash = blockCapsule.getBlockId().toString();
+//      transactionLogTrigger.setBlockHash(blockHash);
+//    }
 
     String transactionHash = trxCapsule.getTransactionId().toString();
     transactionLogTrigger.setTransactionId(transactionHash);
-    transactionLogTrigger.setTimeStamp(blockCapsule.getTimeStamp());
+//    transactionLogTrigger.setTimeStamp(blockCapsule.getTimeStamp());
     transactionLogTrigger.setBlockNumber(trxCapsule.getBlockNum());
     transactionLogTrigger.setData(Hex.toHexString(trxCapsule
         .getInstance().getRawData().getData().toByteArray()));

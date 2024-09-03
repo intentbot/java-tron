@@ -894,6 +894,9 @@ public class Manager {
             processTransaction(trx, null);
             trx.setTrxTrace(null);
             pendingTransactions.add(trx);
+
+            postTransactionTrigger(trx,null);
+
             Metrics.gaugeInc(MetricKeys.Gauge.MANAGER_QUEUE, 1,
                     MetricLabels.Gauge.QUEUE_PENDING);
             tmpSession.merge();
@@ -2135,8 +2138,8 @@ public class Manager {
           // reset block num to ignore value is -1
           transactionCapsule.setBlockNum(newBlock.getNum());
 
-          cumulativeEnergyUsed += postTransactionTrigger(transactionCapsule, newBlock, i,
-              cumulativeEnergyUsed, cumulativeLogCount, transactionInfo, energyUnitPrice);
+//          cumulativeEnergyUsed += postTransactionTrigger(transactionCapsule, newBlock, i,
+//              cumulativeEnergyUsed, cumulativeLogCount, transactionInfo, energyUnitPrice);
 
           cumulativeLogCount += transactionInfo.getLogCount();
         }
@@ -2145,12 +2148,12 @@ public class Manager {
             newBlock.getNum(),
             "the sizes of transactionInfoList and transactionCapsuleList are not equal");
         for (TransactionCapsule e : newBlock.getTransactions()) {
-          postTransactionTrigger(e, newBlock);
+//          postTransactionTrigger(e, newBlock);
         }
       }
     } else {
       for (TransactionCapsule e : newBlock.getTransactions()) {
-        postTransactionTrigger(e, newBlock);
+//        postTransactionTrigger(e, newBlock);
       }
     }
   }
@@ -2283,9 +2286,10 @@ public class Manager {
   }
 
 
+  // 大概率用这个方法，入参简单
   private void postTransactionTrigger(final TransactionCapsule trxCap,
       final BlockCapsule blockCap) {
-    TransactionLogTriggerCapsule trx = new TransactionLogTriggerCapsule(trxCap, blockCap);
+    TransactionLogTriggerCapsule trx = new TransactionLogTriggerCapsule(trxCap,null);
     trx.setLatestSolidifiedBlockNumber(getDynamicPropertiesStore()
         .getLatestSolidifiedBlockNum());
     if (!triggerCapsuleQueue.offer(trx)) {
