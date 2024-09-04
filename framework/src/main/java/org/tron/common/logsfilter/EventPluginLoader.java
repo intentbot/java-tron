@@ -3,12 +3,6 @@ package org.tron.common.logsfilter;
 import com.beust.jcommander.internal.Sets;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.File;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.util.encoders.Hex;
 import org.pf4j.CompoundPluginDescriptorFinder;
@@ -17,13 +11,14 @@ import org.pf4j.ManifestPluginDescriptorFinder;
 import org.pf4j.PluginManager;
 import org.springframework.util.StringUtils;
 import org.tron.common.logsfilter.nativequeue.NativeMessageQueue;
-import org.tron.common.logsfilter.trigger.BlockLogTrigger;
-import org.tron.common.logsfilter.trigger.ContractEventTrigger;
-import org.tron.common.logsfilter.trigger.ContractLogTrigger;
-import org.tron.common.logsfilter.trigger.ContractTrigger;
-import org.tron.common.logsfilter.trigger.SolidityTrigger;
-import org.tron.common.logsfilter.trigger.TransactionLogTrigger;
-import org.tron.common.logsfilter.trigger.Trigger;
+import org.tron.common.logsfilter.trigger.*;
+
+import java.io.File;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class EventPluginLoader {
@@ -65,6 +60,8 @@ public class EventPluginLoader {
   private boolean solidityLogTriggerRedundancy = false;
 
   private boolean solidityTriggerEnable = false;
+
+  private boolean pendingTransactionLogTriggerEnable = false;
 
   private FilterQuery filterQuery;
 
@@ -130,7 +127,7 @@ public class EventPluginLoader {
 
   private static boolean filterContractAddress(ContractTrigger trigger, List<String> addressList) {
     addressList = addressList.stream().filter(item ->
-        org.apache.commons.lang3.StringUtils.isNotEmpty(item))
+            org.apache.commons.lang3.StringUtils.isNotEmpty(item))
         .collect(Collectors.toList());
     if (Objects.isNull(addressList) || addressList.isEmpty()) {
       return true;
@@ -163,7 +160,7 @@ public class EventPluginLoader {
       hset = new HashSet<>(((ContractEventTrigger) trigger).getTopicMap().values());
     } else if (trigger != null) {
       hset = trigger.getLogInfo().getClonedTopics()
-              .stream().map(Hex::toHexString).collect(Collectors.toSet());
+          .stream().map(Hex::toHexString).collect(Collectors.toSet());
     }
 
     for (String top : topList) {
@@ -345,6 +342,14 @@ public class EventPluginLoader {
       if (!useNativeQueue) {
         setPluginTopic(Trigger.SOLIDITY_LOG_TRIGGER, triggerConfig.getTopic());
       }
+    } else if (EventPluginConfig.PENDING_TRANSACTION_TRIGGER_NAME
+        .equalsIgnoreCase(triggerConfig.getTriggerName())) {
+      if (triggerConfig.isEnabled()) {
+        pendingTransactionLogTriggerEnable = true;
+      }
+      if (!useNativeQueue) {
+        setPluginTopic(Trigger.PENDING_TRANSACTION_TRIGGER, triggerConfig.getTopic());
+      }
     }
   }
 
@@ -384,6 +389,10 @@ public class EventPluginLoader {
 
   public synchronized boolean isTransactionLogTriggerEnable() {
     return transactionLogTriggerEnable;
+  }
+  
+  public synchronized boolean isPendingTransactionLogTriggerEnable() {
+    return pendingTransactionLogTriggerEnable;
   }
 
   public synchronized boolean isTransactionLogTriggerEthCompatible() {
@@ -517,6 +526,16 @@ public class EventPluginLoader {
     } else {
       eventListeners.forEach(listener ->
           listener.handleContractEventTrigger(toJsonString(trigger)));
+    }
+  }
+
+  public void postPendingTransactionTrigger(PendingTransactionLogTrigger trigger) {
+    if (useNativeQueue) {
+      NativeMessageQueue.getInstance()
+          .publishTrigger(toJsonString(trigger), trigger.getTriggerName());
+    } else {
+      eventListeners.forEach(listener ->
+          listener.handlePendingTransactionTrigger(toJsonString(trigger)));
     }
   }
 
