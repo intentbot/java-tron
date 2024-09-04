@@ -1,13 +1,7 @@
 package org.tron.common.logsfilter.capsule;
 
-import static org.tron.protos.Protocol.Transaction.Contract.ContractType.CreateSmartContract;
-import static org.tron.protos.contract.Common.ResourceCode.ENERGY;
-
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -27,16 +21,15 @@ import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.Transaction.Contract.ContractType;
 import org.tron.protos.Protocol.TransactionInfo;
 import org.tron.protos.contract.AssetIssueContractOuterClass.TransferAssetContract;
-import org.tron.protos.contract.BalanceContract.CancelAllUnfreezeV2Contract;
-import org.tron.protos.contract.BalanceContract.DelegateResourceContract;
-import org.tron.protos.contract.BalanceContract.FreezeBalanceV2Contract;
-import org.tron.protos.contract.BalanceContract.TransferContract;
-import org.tron.protos.contract.BalanceContract.UnDelegateResourceContract;
-import org.tron.protos.contract.BalanceContract.UnfreezeBalanceContract;
-import org.tron.protos.contract.BalanceContract.UnfreezeBalanceV2Contract;
-import org.tron.protos.contract.BalanceContract.WithdrawExpireUnfreezeContract;
+import org.tron.protos.contract.BalanceContract.*;
 import org.tron.protos.contract.SmartContractOuterClass.CreateSmartContract;
 import org.tron.protos.contract.SmartContractOuterClass.TriggerSmartContract;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+import static org.tron.protos.Protocol.Transaction.Contract.ContractType.CreateSmartContract;
 
 @Slf4j
 public class TransactionLogTriggerCapsule extends TriggerCapsule {
@@ -55,14 +48,14 @@ public class TransactionLogTriggerCapsule extends TriggerCapsule {
     transactionLogTrigger = new TransactionLogTrigger();
 
     String blockHash = "";
-//    if (Objects.nonNull(blockCapsule)) {
-//      blockHash = blockCapsule.getBlockId().toString();
-//      transactionLogTrigger.setBlockHash(blockHash);
-//    }
+    if (Objects.nonNull(blockCapsule)) {
+      blockHash = blockCapsule.getBlockId().toString();
+      transactionLogTrigger.setBlockHash(blockHash);
+      transactionLogTrigger.setTimeStamp(blockCapsule.getTimeStamp());
+    }
 
     String transactionHash = trxCapsule.getTransactionId().toString();
     transactionLogTrigger.setTransactionId(transactionHash);
-//    transactionLogTrigger.setTimeStamp(blockCapsule.getTimeStamp());
     transactionLogTrigger.setBlockNumber(trxCapsule.getBlockNum());
     transactionLogTrigger.setData(Hex.toHexString(trxCapsule
         .getInstance().getRawData().getData().toByteArray()));
