@@ -17,12 +17,14 @@ package org.tron.core;
 
 import com.google.protobuf.ByteString;
 import lombok.extern.slf4j.Slf4j;
+import org.bouncycastle.util.encoders.Hex;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.Sha256Hash;
+import org.tron.common.utils.StringUtil;
 import org.tron.core.capsule.BlockCapsule;
 import org.tron.core.capsule.utils.BlockUtil;
 import org.tron.core.config.args.Args;
@@ -71,5 +73,14 @@ public class BlockUtilTest {
 
     Assert.assertFalse(BlockUtil.isParentOf(blockCapsule1, blockCapsule2));
     Assert.assertTrue(BlockUtil.isParentOf(blockCapsule2, blockCapsule3));
+  }
+
+  @Test
+  public void testBlockUtil2() {
+    String contractAddress = "a614f803b6fd780986a42c78ec9c7f77e6ded13c";
+    //test create GenesisBlockCapsule
+    contractAddress = "41".concat(contractAddress);
+    String trxAddress = StringUtil.encode58Check(Hex.decode(contractAddress));
+    System.out.println(trxAddress);
   }
 }

@@ -63,6 +63,8 @@ public class EventPluginLoader {
 
   private boolean pendingTransactionLogTriggerEnable = false;
 
+  private boolean blockTxLogTriggerEnable = false;
+
   private FilterQuery filterQuery;
 
   private boolean useNativeQueue = false;
@@ -350,6 +352,13 @@ public class EventPluginLoader {
       if (!useNativeQueue) {
         setPluginTopic(Trigger.PENDING_TRANSACTION_TRIGGER, triggerConfig.getTopic());
       }
+    } else if (EventPluginConfig.BLOCK_LOG_TRIGGER_NAME.equalsIgnoreCase(triggerConfig.getTriggerName())) {
+      if (triggerConfig.isEnabled()) {
+        blockTxLogTriggerEnable = true;
+      }
+      if (!useNativeQueue) {
+        setPluginTopic(Trigger.BLOCK_TX_LOG_TRIGGER, triggerConfig.getTopic());
+      }
     }
   }
 
@@ -369,6 +378,10 @@ public class EventPluginLoader {
 
   public synchronized boolean isBlockLogTriggerSolidified() {
     return blockLogTriggerSolidified;
+  }
+  
+  public synchronized boolean isBlockTxLogTriggerEnable() {
+    return blockTxLogTriggerEnable;
   }
 
   public synchronized boolean isSolidityTriggerEnable() {
@@ -390,7 +403,7 @@ public class EventPluginLoader {
   public synchronized boolean isTransactionLogTriggerEnable() {
     return transactionLogTriggerEnable;
   }
-  
+
   public synchronized boolean isPendingTransactionLogTriggerEnable() {
     return pendingTransactionLogTriggerEnable;
   }
@@ -536,6 +549,16 @@ public class EventPluginLoader {
     } else {
       eventListeners.forEach(listener ->
           listener.handlePendingTransactionTrigger(toJsonString(trigger)));
+    }
+  }
+
+  public void postBlockTxLogTrigger(BlockTxLogTrigger trigger) {
+    if (useNativeQueue) {
+      NativeMessageQueue.getInstance()
+          .publishTrigger(toJsonString(trigger), trigger.getTriggerName());
+    } else {
+      eventListeners.forEach(listener ->
+          listener.handleBlockTxEvent(toJsonString(trigger)));
     }
   }
 
