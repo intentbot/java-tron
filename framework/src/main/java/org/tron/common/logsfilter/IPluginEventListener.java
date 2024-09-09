@@ -15,6 +15,8 @@ public interface IPluginEventListener extends ExtensionPoint {
 
   void handleBlockEvent(Object trigger);
 
+  void handleBlockTxEvent(Object trigger);
+
   void handleTransactionTrigger(Object trigger);
 
   void handleContractLogTrigger(Object trigger);

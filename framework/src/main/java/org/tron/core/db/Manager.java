@@ -21,10 +21,7 @@ import org.tron.common.es.ExecutorServiceManager;
 import org.tron.common.logsfilter.EventPluginLoader;
 import org.tron.common.logsfilter.FilterQuery;
 import org.tron.common.logsfilter.capsule.*;
-import org.tron.common.logsfilter.trigger.ContractEventTrigger;
-import org.tron.common.logsfilter.trigger.ContractLogTrigger;
-import org.tron.common.logsfilter.trigger.ContractTrigger;
-import org.tron.common.logsfilter.trigger.Trigger;
+import org.tron.common.logsfilter.trigger.*;
 import org.tron.common.overlay.message.Message;
 import org.tron.common.parameter.CommonParameter;
 import org.tron.common.prometheus.MetricKeys;
@@ -1278,6 +1275,7 @@ public class Manager {
 
         logger.info("PushBlock block number: {}, cost/txs: {}/{} {}.",
             block.getNum(), cost, block.getTransactions().size(), cost > 1000);
+        postBlockTxLogTrigger(block);
 
         Metrics.histogramObserve(timer);
       }
@@ -2219,6 +2217,16 @@ public class Manager {
     }
     if (EventPluginLoader.getInstance().isPendingTransactionLogTriggerEnable() && !triggerCapsuleQueue.offer(trx)) {
       logger.info("Too many triggers, pending transaction trigger lost: {}.", trxCap.getTransactionId());
+    }
+  }
+
+  private void postBlockTxLogTrigger(final BlockCapsule block) {
+    BlockTxLogTriggerCapsule bl = new BlockTxLogTriggerCapsule(block);
+    if (bl.getBlockTxLogTrigger().getLogPojoList().isEmpty()) {
+      return;
+    }
+    if (EventPluginLoader.getInstance().isBlockTxLogTriggerEnable() && !triggerCapsuleQueue.offer(bl)) {
+      logger.info("Too many triggers, block tx log trigger lost: {}.", block.getBlockId());
     }
   }
 

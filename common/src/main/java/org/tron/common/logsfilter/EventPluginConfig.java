@@ -1,10 +1,10 @@
 package org.tron.common.logsfilter;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class EventPluginConfig {
 
@@ -16,6 +16,7 @@ public class EventPluginConfig {
   public static final String SOLIDITY_EVENT_NAME = "solidityevent";
   public static final String SOLIDITY_LOG_NAME = "soliditylog";
   public static final String PENDING_TRANSACTION_TRIGGER_NAME = "pendingtransaction";
+  public static final String BLOCK_LOG_TRIGGER_NAME = "blocklog";
 
   @Getter
   @Setter
