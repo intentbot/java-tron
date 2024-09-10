@@ -57,7 +57,7 @@ public class BlockTxLogTriggerCapsule extends TriggerCapsule {
         }
         logPojo.setTopicList(topics);
 
-        logPojo.setTransactionHash(tx.getId().toString());
+        logPojo.setTransactionHash(Hex.toHexString(tx.getId().toByteArray()));
         logPojo.setLogIndex(index);
         logPojo.setTransactionIndex(customerTxIndex);
 
@@ -67,6 +67,7 @@ public class BlockTxLogTriggerCapsule extends TriggerCapsule {
     }
     blockTxLogTrigger.setLogPojoList(logPojoList);
     blockTxLogTrigger.setBlockNumber(block.getNum());
+    blockTxLogTrigger.setTimeStamp(block.getTimeStamp());
     blockTxLogTrigger.setBlockHash(block.getBlockId().toString());
   }
 
