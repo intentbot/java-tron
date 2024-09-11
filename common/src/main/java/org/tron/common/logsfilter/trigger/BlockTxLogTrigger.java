@@ -12,6 +12,8 @@ public class BlockTxLogTrigger extends Trigger {
 
   private String blockHash;
 
+  private long blockTimestamp;
+
   private ArrayList<LogPojo> logPojoList;
 
   public BlockTxLogTrigger() {

@@ -19,6 +19,7 @@ import org.tron.core.db.TransactionTrace;
 import org.tron.protos.Protocol;
 import org.tron.protos.contract.SmartContractOuterClass;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -43,7 +44,8 @@ public class PendingTransactionLogTriggerCapsule extends TriggerCapsule {
     String transactionHash = trxCapsule.getTransactionId().toString();
     pendingTransactionLogTrigger.setTransactionId(transactionHash);
     pendingTransactionLogTrigger.setData(Hex.toHexString(trxCapsule
-            .getInstance().getRawData().getData().toByteArray()));
+        .getInstance().getRawData().getData().toByteArray()));
+    pendingTransactionLogTrigger.setTimeStamp(Instant.now().toEpochMilli());
 
     TransactionTrace trxTrace = trxCapsule.getTrxTrace();
 
@@ -76,16 +78,16 @@ public class PendingTransactionLogTriggerCapsule extends TriggerCapsule {
       if (!contractParameter.equals(com.google.protobuf.Any.getDefaultInstance())) {
         try {
           SmartContractOuterClass.TriggerSmartContract triggerSmartContract = contractParameter
-                  .unpack(SmartContractOuterClass.TriggerSmartContract.class);
+              .unpack(SmartContractOuterClass.TriggerSmartContract.class);
 
           if (!triggerSmartContract.getOwnerAddress().equals(com.google.protobuf.ByteString.EMPTY)) {
             pendingTransactionLogTrigger.setFromAddress(
-                    StringUtil.encode58Check(triggerSmartContract.getOwnerAddress().toByteArray()));
+                StringUtil.encode58Check(triggerSmartContract.getOwnerAddress().toByteArray()));
           }
 
           if (!triggerSmartContract.getContractAddress().equals(com.google.protobuf.ByteString.EMPTY)) {
             pendingTransactionLogTrigger.setToAddress(StringUtil
-                    .encode58Check(triggerSmartContract.getContractAddress().toByteArray()));
+                .encode58Check(triggerSmartContract.getContractAddress().toByteArray()));
           }
           List<String> filterContractAddress = Args.getInstance().getEventFilter().getContractAddressList();
           if (!filterContractAddress.contains(pendingTransactionLogTrigger.getToAddress())) {
@@ -93,7 +95,7 @@ public class PendingTransactionLogTriggerCapsule extends TriggerCapsule {
           }
           if (!triggerSmartContract.getData().equals(com.google.protobuf.ByteString.EMPTY)) {
             pendingTransactionLogTrigger.setData(StringUtil
-                    .encode58Check(triggerSmartContract.getData().toByteArray()));
+                .encode58Check(triggerSmartContract.getData().toByteArray()));
           }
         } catch (Exception e) {
           logger.error("failed to load contract, error '{}'", e.getMessage());
@@ -103,7 +105,7 @@ public class PendingTransactionLogTriggerCapsule extends TriggerCapsule {
 
     // program result
     if (Objects.nonNull(trxTrace) && Objects.nonNull(trxTrace.getRuntime()) && Objects
-            .nonNull(trxTrace.getRuntime().getResult())) {
+        .nonNull(trxTrace.getRuntime().getResult())) {
       ProgramResult programResult = trxTrace.getRuntime().getResult();
       ByteString contractResult = ByteString.copyFrom(programResult.getHReturn());
       ByteString contractAddress = ByteString.copyFrom(programResult.getContractAddress());
@@ -114,17 +116,17 @@ public class PendingTransactionLogTriggerCapsule extends TriggerCapsule {
 
       if (Objects.nonNull(contractAddress) && contractAddress.size() > 0) {
         if (Objects.nonNull(transactionInfo)
-                && contractType != null && contractType != CreateSmartContract) {
+            && contractType != null && contractType != CreateSmartContract) {
           pendingTransactionLogTrigger.setContractAddress(null);
         } else {
           pendingTransactionLogTrigger
-                  .setContractAddress(StringUtil.encode58Check((contractAddress.toByteArray())));
+              .setContractAddress(StringUtil.encode58Check((contractAddress.toByteArray())));
         }
       }
 
       // internal transaction
       pendingTransactionLogTrigger.setInternalTransactionList(
-              getInternalTransactionList(programResult.getInternalTransactions()));
+          getInternalTransactionList(programResult.getInternalTransactions()));
     }
 
     // process transactionInfo list, only enabled when ethCompatible is true
@@ -137,7 +139,7 @@ public class PendingTransactionLogTriggerCapsule extends TriggerCapsule {
         LogPojo logPojo = new LogPojo();
 
         logPojo.setAddress((log.getAddress() != com.google.protobuf.ByteString.EMPTY)
-                ? Hex.toHexString(log.getAddress().toByteArray()) : "");
+            ? Hex.toHexString(log.getAddress().toByteArray()) : "");
         logPojo.setBlockNumber(trxCapsule.getBlockNum());
         logPojo.setData(Hex.toHexString(log.getData().toByteArray()));
         logPojo.setLogIndex(preCumulativeLogCount + index);
@@ -158,7 +160,7 @@ public class PendingTransactionLogTriggerCapsule extends TriggerCapsule {
   }
 
   private List<InternalTransactionPojo> getInternalTransactionList(
-          List<InternalTransaction> internalTransactionList) {
+      List<InternalTransaction> internalTransactionList) {
     List<InternalTransactionPojo> pojoList = new ArrayList<>();
 
     internalTransactionList.forEach(internalTransaction -> {
