@@ -2222,9 +2222,9 @@ public class Manager {
 
   private void postBlockTxLogTrigger(final BlockCapsule block) {
     BlockTxLogTriggerCapsule bl = new BlockTxLogTriggerCapsule(block);
-    if (bl.getBlockTxLogTrigger().getLogPojoList().isEmpty()) {
-      return;
-    }
+//    if (bl.getBlockTxLogTrigger().getLogPojoList().isEmpty()) {
+//      return;
+//    }
     if (EventPluginLoader.getInstance().isBlockTxLogTriggerEnable() && !triggerCapsuleQueue.offer(bl)) {
       logger.info("Too many triggers, block tx log trigger lost: {}.", block.getBlockId());
     }
