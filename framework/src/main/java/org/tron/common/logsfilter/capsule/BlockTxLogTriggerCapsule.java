@@ -13,6 +13,7 @@ import org.tron.core.capsule.BlockCapsule;
 import org.tron.core.config.args.Args;
 import org.tron.protos.Protocol;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -68,6 +69,8 @@ public class BlockTxLogTriggerCapsule extends TriggerCapsule {
     blockTxLogTrigger.setLogPojoList(logPojoList);
     blockTxLogTrigger.setBlockNumber(block.getNum());
     blockTxLogTrigger.setBlockHash(block.getBlockId().toString());
+    blockTxLogTrigger.setTimeStamp(Instant.now().toEpochMilli());
+    blockTxLogTrigger.setBlockTimestamp(block.getTimeStamp());
   }
 
   @Override
