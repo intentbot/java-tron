@@ -45,7 +45,9 @@ public class PendingTransactionLogTriggerCapsule extends TriggerCapsule {
     pendingTransactionLogTrigger.setTransactionId(transactionHash);
     pendingTransactionLogTrigger.setData(Hex.toHexString(trxCapsule
         .getInstance().getRawData().getData().toByteArray()));
-    pendingTransactionLogTrigger.setTimeStamp(Instant.now().toEpochMilli());
+    pendingTransactionLogTrigger.setTimeStamp(trxCapsule.getTimestamp());
+    pendingTransactionLogTrigger.setExpiration(trxCapsule.getExpiration());
+    pendingTransactionLogTrigger.setLocalTime(Instant.now().toEpochMilli());
 
     TransactionTrace trxTrace = trxCapsule.getTrxTrace();
 
