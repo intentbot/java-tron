@@ -24,6 +24,8 @@ public class PendingTransactionLogTrigger extends Trigger {
   private String assetName;
   private long assetAmount;
   private long latestSolidifiedBlockNumber;
+  private long expiration;
+  private long localTime;
   //internal transaction
   private List<InternalTransactionPojo> internalTransactionList;
   private String data;
