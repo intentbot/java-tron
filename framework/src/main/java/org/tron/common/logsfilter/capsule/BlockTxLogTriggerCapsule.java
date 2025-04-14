@@ -68,6 +68,7 @@ public class BlockTxLogTriggerCapsule extends TriggerCapsule {
     }
     blockTxLogTrigger.setLogPojoList(logPojoList);
     blockTxLogTrigger.setBlockNumber(block.getNum());
+    blockTxLogTrigger.setTimeStamp(block.getTimeStamp());
     blockTxLogTrigger.setBlockHash(block.getBlockId().toString());
     blockTxLogTrigger.setTimeStamp(Instant.now().toEpochMilli());
     blockTxLogTrigger.setBlockTimestamp(block.getTimeStamp());
